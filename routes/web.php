@@ -16,3 +16,15 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+Route::group(['prefix' => 'admin'], function () {
+    Voyager::routes();
+});
+
+Route::get('/admin/register', 'RegisterController@index')->name('register');;
+Route::post('/admin/register', 'RegisterController@register')->name('PostRegister');
+Route::post('logout', 'RegisterController@logout')->name('logout');
+
+Route::get('/home', 'HomeController@index')->name('home');
+
