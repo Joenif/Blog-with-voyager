@@ -13,18 +13,34 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 
 Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();
 });
 
-Route::get('/admin/register', 'RegisterController@index')->name('register');;
-Route::post('/admin/register', 'RegisterController@register')->name('PostRegister');
-Route::post('logout', 'RegisterController@logout')->name('logout');
+Route::get('/', 'MainController@index')->name('index');
 
-Route::get('/home', 'HomeController@index')->name('home');
+// Post Routes
+Route::get('/post/{slug}', 'PostController@read')->name('readPost');
+
+// Category Routes
+Route::get('/{slug}', 'PostController@category')->name('category');
+
+// Search Routes
+Route::post('/search', 'MainController@search')->name('search');
+
+
+
+
+
+
+
+
+
+
+// Registration Routes...
+Route::get('/admin/register', 'Auth\RegisterController@showRegistrationForm')->name('register');
+Route::post('/admin/register', 'Auth\RegisterController@register')->name('PostRegister');
+
+Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 

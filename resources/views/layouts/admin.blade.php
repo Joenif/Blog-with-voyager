@@ -1,13 +1,15 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<!-- <html lang="{{ str_replace('_', '-', app()->getLocale()) }}"> -->
+<html lang="{{ config('app.locale') }}" dir="{{ __('voyager::generic.is_rtl') == 'true' ? 'rtl' : 'ltr' }}">
+
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>Admin - {{ Voyager::setting("admin.title") }}</title>
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
@@ -18,13 +20,81 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ voyager_asset('css/app.css') }}">
+
+    @if (__('voyager::generic.is_rtl') == 'true')
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-rtl/3.4.0/css/bootstrap-rtl.css">
+        <link rel="stylesheet" href="{{ voyager_asset('css/rtl.css') }}">
+    @endif
+    <style>
+        .row>[class*=col-] {
+            margin-bottom: 5px!important;
+        }
+        body {
+            background-image:url('{{ Voyager::image( Voyager::setting("admin.bg_image"), voyager_asset("images/bg.jpg") ) }}');
+            background-color: {{ Voyager::setting("admin.bg_color", "#FFFFFF" ) }};
+        }
+        body.login .logo-title-container {
+            position: fixed;
+            width: 100%;
+            bottom: 10px;
+            margin-top: -100px;
+            left: 30px;
+        }
+        body.login .login-sidebar {
+            border-top:5px solid {{ config('voyager.primary_color','#22A7F0') }};
+        }
+        body.login .form-control {
+            border: 1px solid #dadadafa;
+        }
+        @media (max-width: 767px) {
+            body.login .login-sidebar {
+                border-top:0px !important;
+                border-left:5px solid {{ config('voyager.primary_color','#22A7F0') }};
+            }
+        }
+        body.login .form-group-default.focused{
+            border-color:{{ config('voyager.primary_color','#22A7F0') }};
+        }
+        .login-button, .bar:before, .bar:after{
+            background:{{ config('voyager.primary_color','#22A7F0') }};
+        }
+        .remember-me-text{
+            padding:0 5px;
+        }
+
+        @media (max-width: 767px) {
+            body.login .login-sidebar {
+                border-top:0px !important;
+                border-left:5px solid {{ config('voyager.primary_color','#22A7F0') }};
+            }
+            
+            body.login .login-container {
+                top: 30%;
+                margin-top: -150px;
+            }
+
+            .row>[class*=col-] {
+                margin-bottom: 0!important;
+            }
+        }
+        body.login .form-group.focused{
+            border-color:{{ config('voyager.primary_color','#22A7F0') }};
+        }
+        .login-button, .bar:before, .bar:after{
+            background:{{ config('voyager.primary_color','#22A7F0') }};
+        }
+        .remember-me-text{
+            padding:0 5px;
+        }
+    </style>
 </head>
-<body class="login">
+<body id="app" class="login">
 
 <div class="container-fluid">
     <div class="row">
         <div class="faded-bg animated"></div>
-        <div class="hidden-xs col-sm-7 col-md-8">
+        <div class="hidden-sm col-sm-12 col-md-8">
             <div class="clearfix">
                 <div class="col-sm-12 col-md-10 col-md-offset-2">
                     <div class="logo-title-container">
@@ -43,23 +113,21 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-sm-5 col-md-4 login-sidebar">
-
+        <div class="col-xs-12 col-sm-12 col-md-4 login-sidebar">
+            @if(!$errors->isEmpty())
+                <div class="alert alert-red">
+                    <ul class="list-unstyled">
+                        @foreach($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <div class="login-container">
 
-                <main class="py-4">
+                <main>
                     @yield('content')
                 </main>
-
-              @if(!$errors->isEmpty())
-              <div class="alert alert-red">
-                <ul class="list-unstyled">
-                    @foreach($errors->all() as $err)
-                    <li>{{ $err }}</li>
-                    @endforeach
-                </ul>
-              </div>
-              @endif
 
             </div> <!-- .login-container -->
 
@@ -69,6 +137,7 @@
 <script>
     var btn = document.querySelector('button[type="submit"]');
     var form = document.forms[0];
+    var name = document.querySelector('[name="name"]');
     var email = document.querySelector('[name="email"]');
     var password = document.querySelector('[name="password"]');
     btn.addEventListener('click', function(ev){
